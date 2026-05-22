@@ -6,6 +6,17 @@
     <title>MD Abu Taib - Digital Business Innovation & AI Automation</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .profile-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
@@ -25,7 +36,10 @@
     <section id="home" class="hero">
         <div class="hero-content">
             <div class="hero-avatar">
-                <i class="fas fa-user-circle"></i>
+                <img src="profile.jpg" alt="MD Abu Taib Profile Photo" class="profile-image" onerror="this.style.display='none'; document.querySelector('.fallback-avatar').style.display='block';">
+                <div class="fallback-avatar" style="display: none;">
+                    <i class="fas fa-user-circle"></i>
+                </div>
             </div>
             <h1>MD Abu Taib</h1>
             <p>Undergraduate Research Assistant | Digital Business Innovation | AI Automation Enthusiast</p>
