@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Upload Profile Photo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .admin-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .admin-header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px 15px 0 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .admin-header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .admin-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .admin-content {
+            background: white;
+            padding: 40px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upload-box {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f9f9f9;
+        }
+
+        .upload-box:hover {
+            background: #f0f0ff;
+            border-color: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .upload-box.dragover {
+            background: #e8e8ff;
+            border-color: #764ba2;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.3rem;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: #999;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .preview-container {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 30px;
+            text-align: center;
+            display: none;
+        }
+
+        .preview-container.show {
+            display: block;
+        }
+
+        .preview-image {
+            max-width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #667eea;
+            margin: 0 auto;
+            display: block;
+            box-shadow: 0 5px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .preview-filename {
+            margin-top: 15px;
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .action-buttons {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .status {
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+            font-weight: 600;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .status.loading {
+            background: #cfe2ff;
+            color: #084298;
+            border: 2px solid #b6d4fe;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .info-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .info-table td:first-child {
+            font-weight: 600;
+            color: #667eea;
+            width: 200px;
+        }
+
+        .code-block {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer-admin {
+            background: white;
+            padding: 20px 40px;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            transform: translateX(-5px);
+        }
+
+        @media (max-width: 600px) {
+            .admin-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .upload-icon {
+                font-size: 60px;
+            }
+
+            .admin-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <a href="index.html" class="back-link">← Back to Portfolio</a>
+
+        <div class="admin-header">
+            <h1>🔐 Admin Panel</h1>
+            <p>Upload Your Profile Photo</p>
+        </div>
+
+        <div class="admin-content">
+            <!-- Upload Section -->
+            <div class="section">
+                <div class="section-title">📸 Upload Profile Photo</div>
+                
+                <div class="upload-box" id="uploadBox">
+                    <div class="upload-icon">📤</div>
+                    <div class="upload-text">Drag your photo here</div>
+                    <div class="upload-subtext">or click to browse</div>
+                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">Choose Photo</button>
+                    <input type="file" id="fileInput" class="file-input" accept="image/*">
+                </div>
+
+                <!-- Preview -->
+                <div class="preview-container" id="previewContainer">
+                    <h3>Preview</h3>
+                    <img id="previewImage" class="preview-image" alt="Preview">
+                    <div class="preview-filename" id="previewFilename"></div>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="uploadBtn">✅ Upload & Save</button>
+                        <button class="btn btn-secondary" onclick="cancelUpload()">❌ Choose Another</button>
+                    </div>
+                </div>
+
+                <!-- Status Message -->
+                <div class="status" id="status"></div>
+            </div>
+
+            <!-- Instructions Section -->
+            <div class="section">
+                <div class="section-title">📋 Instructions</div>
+                <ol style="line-height: 2; color: #555;">
+                    <li><strong>Select a photo</strong> - Drag and drop or click to browse</li>
+                    <li><strong>Preview</strong> - Check how it looks</li>
+                    <li><strong>Upload</strong> - Click the upload button</li>
+                    <li><strong>Wait for confirmation</strong> - Your photo will be saved as profile.jpg</li>
+                    <li><strong>View your portfolio</strong> - Your photo will appear on your homepage!</li>
+                </ol>
+            </div>
+
+            <!-- Info Section -->
+            <div class="section">
+                <div class="section-title">ℹ️ File Information</div>
+                <table class="info-table">
+                    <tr>
+                        <td>Supported Formats:</td>
+                        <td>JPG, PNG, GIF, WebP, SVG</td>
+                    </tr>
+                    <tr>
+                        <td>Maximum Size:</td>
+                        <td>5 MB</td>
+                    </tr>
+                    <tr>
+                        <td>Recommended Size:</td>
+                        <td>500x500 pixels or larger</td>
+                    </tr>
+                    <tr>
+                        <td>File Name:</td>
+                        <td><code>profile.jpg</code> (auto-generated)</td>
+                    </tr>
+                    <tr>
+                        <td>Display:</td>
+                        <td>Circular format on homepage</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Links Section -->
+            <div class="section">
+                <div class="section-title">🔗 Quick Links</div>
+                <table class="info-table">
+                    <tr>
+                        <td>Your Portfolio:</td>
+                        <td><a href="index.html" target="_blank" style="color: #667eea; text-decoration: underline;">https://taib426.github.io</a></td>
+                    </tr>
+                    <tr>
+                        <td>Info Form:</td>
+                        <td><a href="form.html" target="_blank" style="color: #667eea; text-decoration: underline;">https://taib426.github.io/form.html</a></td>
+                    </tr>
+                    <tr>
+                        <td>GitHub Repo:</td>
+                        <td><a href="https://github.com/taib426/taib426.github.io" target="_blank" style="color: #667eea; text-decoration: underline;">https://github.com/taib426/taib426.github.io</a></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="footer-admin">
+            <p>This is your private admin panel. Upload and manage your profile photo here.</p>
+        </div>
+    </div>
+
+    <script>
+        const uploadBox = document.getElementById('uploadBox');
+        const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImage = document.getElementById('previewImage');
+        const previewFilename = document.getElementById('previewFilename');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const status = document.getElementById('status');
+
+        let selectedFile = null;
+
+        // Drag and Drop
+        uploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadBox.classList.add('dragover');
+        });
+
+        uploadBox.addEventListener('dragleave', () => {
+            uploadBox.classList.remove('dragover');
+        });
+
+        uploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadBox.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        // File Input Change
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            // Validate
+            if (!file.type.startsWith('image/')) {
+                showStatus('❌ Please select an image file', 'error');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                showStatus('❌ File size must be less than 5MB', 'error');
+                return;
+            }
+
+            selectedFile = file;
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                previewFilename.textContent = `📄 ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+                previewContainer.classList.add('show');
+                uploadBox.style.opacity = '0.5';
+                uploadBox.style.pointerEvents = 'none';
+                status.classList.remove('show');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function cancelUpload() {
+            selectedFile = null;
+            fileInput.value = '';
+            previewContainer.classList.remove('show');
+            uploadBox.style.opacity = '1';
+            uploadBox.style.pointerEvents = 'auto';
+            status.classList.remove('show');
+        }
+
+        uploadBtn.addEventListener('click', () => {
+            if (!selectedFile) return;
+
+            uploadBtn.disabled = true;
+            showStatus('<div class="loader"></div> 🔄 Uploading to GitHub...', 'loading');
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const base64 = e.target.result.split(',')[1];
+                uploadToGithub(base64);
+            };
+            reader.readAsDataURL(selectedFile);
+        });
+
+        function uploadToGithub(base64Data) {
+            // Get GitHub token from user
+            const token = prompt('🔑 Enter your GitHub Personal Access Token:\n\n(Create one at: https://github.com/settings/tokens/new)\nScopes needed: repo, public_repo');
+            
+            if (!token) {
+                showStatus('⚠️ Upload cancelled. Token is required.', 'error');
+                uploadBtn.disabled = false;
+                return;
+            }
+
+            const filename = 'profile.jpg';
+            const message = 'Upload profile photo';
+
+            // Check if file exists
+            fetch(`https://api.github.com/repos/taib426/taib426.github.io/contents/${filename}`, {
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            })
+            .then(res => {
+                if (res.ok) return res.json();
+                return null;
+            })
+            .then(existingFile => {
+                // Upload file
+                const sha = existingFile ? existingFile.sha : null;
+                const body = {
+                    message: message,
+                    content: base64Data,
+                    branch: 'main'
+                };
+
+                if (sha) body.sha = sha;
+
+                return fetch(`https://api.github.com/repos/taib426/taib426.github.io/contents/${filename}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: JSON.stringify(body)
+                });
+            })
+            .then(res => {
+                if (res.ok) {
+                    showStatus('✅ Success! Your photo has been uploaded to GitHub!\n\n📸 Your photo will appear on your portfolio at: https://taib426.github.io', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                } else {
+                    throw new Error('Upload failed');
+                }
+            })
+            .catch(error => {
+                showStatus(`❌ Error: ${error.message}\n\nMake sure your token is valid and has repo permissions.`, 'error');
+                uploadBtn.disabled = false;
+            });
+        }
+
+        function showStatus(message, type) {
+            status.innerHTML = message;
+            status.className = `status show ${type}`;
+        }
+    </script>
+</body>
+</html>
